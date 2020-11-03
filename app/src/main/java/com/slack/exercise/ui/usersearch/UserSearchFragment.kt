@@ -1,19 +1,20 @@
 package com.slack.exercise.ui.usersearch
 
+import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.slack.exercise.FileManager
 import com.slack.exercise.R
 import com.slack.exercise.databinding.FragmentUserSearchBinding
 import com.slack.exercise.model.UserSearchResult
 import dagger.android.support.DaggerFragment
 import timber.log.Timber
+import java.io.*
 import javax.inject.Inject
+
 
 /**
  * Main fragment displaying and handling interactions with the view.
@@ -25,6 +26,10 @@ class UserSearchFragment : DaggerFragment(), UserSearchContract.View {
   internal lateinit var presenter: UserSearchPresenter
 
   private lateinit var userSearchBinding: FragmentUserSearchBinding
+
+  val fileManager = FileManager()
+
+  var currentSearchTerm = ""
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
       savedInstanceState: Bundle?): View? {
@@ -63,15 +68,53 @@ class UserSearchFragment : DaggerFragment(), UserSearchContract.View {
       }
 
       override fun onQueryTextChange(newText: String): Boolean {
-        presenter.onQueryTextChange(newText)
+        val isDenied = findTextInDenyList(newText, R.raw.denylist)
+
+        if (isDenied) {
+          presentFailedSearchToast()
+        } else {
+          presenter.onQueryTextChange(newText)
+          currentSearchTerm = newText
+        }
         return true
       }
     })
   }
 
+  fun findTextInDenyList(word: String, fileResource: Int): Boolean {
+    var result = false
+    val denyList = context?.let { fileManager.readFromFile(it, fileResource) }
+
+    if (denyList != null) {
+      for(deniedWord in denyList) {
+        if (word == deniedWord) {
+          result = true
+          break
+        }
+      }
+    }
+    return result
+  }
+
+  private fun addItemToDenyList(word: String, fileName: String) {
+    context?.let { fileManager.writeToFile(it, fileName, word) }
+
+      Toast.makeText(context, "File saved successfully!",
+              Toast.LENGTH_SHORT).show()
+  }
+
+  fun presentFailedSearchToast() {
+    Toast.makeText(context, getString(R.string.denied_search_term_message), Toast.LENGTH_SHORT).show()
+  }
+
+
   override fun onUserSearchResults(results: Set<UserSearchResult>) {
     val adapter = userSearchBinding.userSearchResultList.adapter as UserSearchAdapter
     adapter.setResults(results)
+
+    if (results.isEmpty()) {
+      addItemToDenyList(currentSearchTerm, DENY_LIST)
+    }
   }
 
   override fun onUserSearchError(error: Throwable) {
@@ -91,5 +134,8 @@ class UserSearchFragment : DaggerFragment(), UserSearchContract.View {
       }
       setHasFixedSize(true)
     }
+  }
+  companion object {
+    const val DENY_LIST = "denylist.txt"
   }
 }
