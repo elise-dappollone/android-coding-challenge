@@ -27,9 +27,9 @@ class UserSearchFragment : DaggerFragment(), UserSearchContract.View {
 
   private lateinit var userSearchBinding: FragmentUserSearchBinding
 
-  val fileManager = FileManager()
-
   var currentSearchTerm = ""
+
+  private val fileManager = FileManager()
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
       savedInstanceState: Bundle?): View? {
@@ -88,6 +88,7 @@ class UserSearchFragment : DaggerFragment(), UserSearchContract.View {
     if (denyList != null) {
       for(deniedWord in denyList) {
         if (word == deniedWord) {
+          Timber.i("search term, $word, found in denyList")
           result = true
           break
         }
@@ -99,8 +100,7 @@ class UserSearchFragment : DaggerFragment(), UserSearchContract.View {
   private fun addItemToDenyList(word: String, fileName: String) {
     context?.let { fileManager.writeToFile(it, fileName, word) }
 
-      Toast.makeText(context, "File saved successfully!",
-              Toast.LENGTH_SHORT).show()
+    Timber.i("$word: successfully saved to denyList")
   }
 
   fun presentFailedSearchToast() {
