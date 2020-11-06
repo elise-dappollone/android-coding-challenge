@@ -1,5 +1,4 @@
 # android-code-exercise
-Skeleton project for the coding exercise for Android candidates
 
 Thanks for the opportunity to work on this coding challenge! I had a great time working on it.
 
