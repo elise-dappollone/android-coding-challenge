@@ -30,7 +30,9 @@ class UserSearchAdapter : RecyclerView.Adapter<UserSearchAdapter.UserSearchViewH
   }
 
   override fun onBindViewHolder(holder: UserSearchViewHolder, position: Int) {
-    holder.username.text = userSearchResults[position].username
+    val username = userSearchResults[position].username
+    holder.username.text = username
+    holder.username.contentDescription = "Result ${position}: " + "$username"
   }
 
   class UserSearchViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
