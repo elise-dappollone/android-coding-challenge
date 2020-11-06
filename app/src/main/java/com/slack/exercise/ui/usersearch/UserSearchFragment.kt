@@ -119,6 +119,7 @@ class UserSearchFragment : DaggerFragment(), UserSearchContract.View {
 
   override fun onUserSearchError(error: Throwable) {
     Timber.e(error, "Error searching users.")
+    Toast.makeText(context, getString(R.string.failed_search_message), Toast.LENGTH_SHORT).show()
   }
 
   private fun setUpToolbar() {

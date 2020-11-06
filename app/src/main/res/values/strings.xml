@@ -2,4 +2,5 @@
     <string name="app_name">Slack Challenge</string>
     <string name="search_users_hint">Search Users</string>
     <string name="denied_search_term_message">Oops! Not a valid search term. Try again.</string>
+    <string name="failed_search_message">Oops! Something went wrong.</string>
 </resources>
